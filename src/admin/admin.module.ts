@@ -10,7 +10,7 @@ import { Industry } from './industry.entity';
     JwtModule.register({
       secret:
         'f3a43d7f0ea84f5f3569c8c7cb5d5d63913bf843b1b781d69f312bce85863b21',
-      signOptions: { expiresIn: '30s' },
+      signOptions: { expiresIn: '60s' },
     }),
     TypeOrmModule.forFeature([Industry]), // Import UserRepository
   ],

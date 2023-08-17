@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt'; // Import JwtService
+import { ROLES_KEY } from './roles.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -33,19 +34,38 @@ export class RolesGuard implements CanActivate {
   //   }
 
   canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.get<string>(ROLES_KEY, context.getHandler());
+    console.log("Required Role:", requiredRoles);
+  
+    if (!requiredRoles || requiredRoles.length === 0) {
+      return true; // No role required, access allowed
+    }
+  
     const request = context.switchToHttp().getRequest();
     const token = request.headers.authorization?.split(' ')[1]; // Extract token
-
-    if (!token) return false; // No token, access denied
-
+  
+    if (!token) {
+      return false; // No token, access denied
+    }
+  
     try {
       const decodedToken = this.jwtService.verify(token); // Verify token
-      request.user = decodedToken; // Attach decoded token to request
-      console.log('User req: ', request.user); //User details who generated the token
-      console.log('Sub decoded: ', decodedToken.sub); // user id
-      return true; // Token is valid, access allowed
+      const user = decodedToken; // Use the decoded token as the user
+  
+      console.log('User who generated the token:', user);
+      console.log('Required Role:', requiredRoles);
+  
+      // Check if user has the required role
+      if (requiredRoles.includes(user.role)) {
+        console.log("Entered true")
+        return true; // User has the required role, access allowed
+      } else {
+        console.log("Entered false")
+        return false; // User does not have the required role, access denied
+      }
     } catch (error) {
       return false; // Invalid token, access denied
     }
   }
+  
 }
