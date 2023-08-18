@@ -14,11 +14,10 @@ import { AppService } from './app.service';
       username: 'bimakavach',
       password: 'bimakavach',
       database: 'bima',
-      entities: [Industry], // Define your entities here
+      entities: [Industry],
       synchronize: true,
     }),
     AdminModule,
-    // ... other imports
   ],
   controllers: [AppController],
   providers: [AppService],

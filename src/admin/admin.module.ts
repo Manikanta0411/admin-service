@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { Industry } from './industry.entity';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -13,8 +15,16 @@ import { Industry } from './industry.entity';
       signOptions: { expiresIn: '60s' },
     }),
     TypeOrmModule.forFeature([Industry]), // Import UserRepository
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 2,
+    }),
   ],
   controllers: [AdminController],
-  providers: [AdminService],
+  providers: [AdminService, {
+    provide: APP_GUARD,
+    useClass: ThrottlerGuard
+  }
+  ],
 })
 export class AdminModule {}
